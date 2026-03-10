@@ -1,44 +1,42 @@
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class PalindromeCheckerApp {
     public static void main(String[] args){
         System.out.println("Welcome to Palindrome Checker App Management System");
 
 
-        // Define input string
-        String input = "civic";
+        // Define the input string
+        String input = "refer";
 
-        // Create Queue (FIFO)
-        Queue<Character> queue = new LinkedList<>();
+        // Create a Deque to store characters
+        Deque<Character> deque = new ArrayDeque<>();
 
-        // Create Stack (LIFO)
-        Stack<Character> stack = new Stack<>();
-
-        // Insert characters into both data structures
-        for (char ch : input.toCharArray()) {
-            queue.add(ch);     // Enqueue
-            stack.push(ch);    // Push
+        // Add each character to the deque
+        for (char c : input.toCharArray()) {
+            deque.addLast(c);
         }
 
-        // Flag to track palindrome status
+        // Flag to track palindrome result
         boolean isPalindrome = true;
 
-        // Compare until queue becomes empty
-        while (!queue.isEmpty()) {
-            char fromQueue = queue.remove(); // Dequeue
-            char fromStack = stack.pop();    // Pop
+        // Continue comparison while more than one element exists
+        while (deque.size() > 1) {
 
-            if (fromQueue != fromStack) {
+            char first = deque.removeFirst();
+            char last = deque.removeLast();
+
+            if (first != last) {
                 isPalindrome = false;
                 break;
             }
         }
 
-        // Display result
-        System.out.println("Input : " + input);
-        System.out.println("Is Palindrome? : " + isPalindrome);
-
+        // Print result
+        if (isPalindrome) {
+            System.out.println(input + " is a Palindrome.");
+        } else {
+            System.out.println(input + " is NOT a Palindrome.");
+        }
     }
 }
