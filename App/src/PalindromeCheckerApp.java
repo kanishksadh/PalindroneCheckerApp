@@ -1,88 +1,72 @@
 import java.util.*;
-interface PalindromeStrategy {
-    boolean check(String input);
-}
 
-// 2. Concrete Strategy A: Using a Stack (LIFO)
-class StackStrategy implements PalindromeStrategy {
-    @Override
-    public boolean check(String input) {
-        String clean = input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-        Stack<Character> stack = new Stack<>();
-
-        for (char c : clean.toCharArray()) {
-            stack.push(c);
-        }
-
-        StringBuilder reversed = new StringBuilder();
-        while (!stack.isEmpty()) {
-            reversed.append(stack.pop());
-        }
-
-        return clean.equals(reversed.toString());
-    }
-}
-
-// 3. Concrete Strategy B: Using a Deque (Double-Ended Queue)
-class DequeStrategy implements PalindromeStrategy {
-    @Override
-    public boolean check(String input) {
-        String clean = input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-        Deque<Character> deque = new LinkedList<>();
-
-        for (char c : clean.toCharArray()) {
-            deque.addLast(c);
-        }
-
-        while (deque.size() > 1) {
-            if (deque.removeFirst() != deque.removeLast()) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
-// 4. Context Class: The Palindrome Checker
-class PalindromeContext {
-    private PalindromeStrategy strategy;
-
-    // Inject strategy at runtime
-    public void setStrategy(PalindromeStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public boolean validate(String text) {
-        return strategy.check(text);
-    }
-}
 
 public class PalindromeCheckerApp {
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
-        PalindromeContext context = new PalindromeContext();
+        System.out.println("--- UC13: Palindrome Algorithm Performance Comparison ---");
+        System.out.print("Enter a long string for stress testing: ");
+        String input = scanner.nextLine();
 
-        System.out.println("--- UC12: Strategy Pattern Palindrome Checker ---");
-        System.out.print("Enter text: ");
-        String text = scanner.nextLine();
+        // Normalize once to keep the test fair
+        String cleanInput = input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
 
-        System.out.println("Choose Strategy: 1. Stack (LIFO)  2. Deque (Two-Way)");
-        int choice = scanner.nextInt();
+        System.out.println("\nBenchmarking Results:");
+        System.out.println("--------------------------------------------------");
+        System.out.printf("%-20s | %-15s | %-10s\n", "Algorithm", "Time (ns)", "Result");
+        System.out.println("--------------------------------------------------");
 
-        // Polymorphism in action
-        if (choice == 1) {
-            context.setStrategy(new StackStrategy());
-            System.out.println("Using Stack Strategy...");
-        } else {
-            context.setStrategy(new DequeStrategy());
-            System.out.println("Using Deque Strategy...");
-        }
+        // 1. Benchmark Two-Pointer (Iterative)
+        long start = System.nanoTime();
+        boolean res1 = checkTwoPointer(cleanInput);
+        long end = System.nanoTime();
+        printRow("Two-Pointer", (end - start), res1);
 
-        if (context.validate(text)) {
-            System.out.println("Result: It is a palindrome.");
-        } else {
-            System.out.println("Result: Not a palindrome.");
-        }
+        // 2. Benchmark Stack Strategy
+        start = System.nanoTime();
+        boolean res2 = checkStack(cleanInput);
+        end = System.nanoTime();
+        printRow("Stack (LIFO)", (end - start), res2);
+
+        // 3. Benchmark Deque Strategy
+        start = System.nanoTime();
+        boolean res3 = checkDeque(cleanInput);
+        end = System.nanoTime();
+        printRow("Deque (Two-Way)", (end - start), res3);
+
+        System.out.println("--------------------------------------------------");
         scanner.close();
+    }
+
+    private static void printRow(String name, long time, boolean result) {
+        System.out.printf("%-20s | %-15d | %-10s\n", name, time, result ? "Pass" : "Fail");
+    }
+
+    // --- ALGORITHMS ---
+
+    private static boolean checkTwoPointer(String s) {
+        int left = 0, right = s.length() - 1;
+        while (left < right) {
+            if (s.charAt(left++) != s.charAt(right--)) return false;
+        }
+        return true;
+    }
+
+    private static boolean checkStack(String s) {
+        Stack<Character> stack = new Stack<>();
+        for (char c : s.toCharArray()) stack.push(c);
+        for (char c : s.toCharArray()) {
+            if (c != stack.pop()) return false;
+        }
+        return true;
+    }
+
+    private static boolean checkDeque(String s) {
+        Deque<Character> deque = new LinkedList<>();
+        for (char c : s.toCharArray()) deque.addLast(c);
+        while (deque.size() > 1) {
+            if (deque.removeFirst() != deque.removeLast()) return false;
+        }
+        return true;
     }
 }
