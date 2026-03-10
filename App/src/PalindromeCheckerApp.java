@@ -1,42 +1,85 @@
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Scanner;
 
+class Node {
+    char data;
+    Node next;
+
+    Node(char data) {
+        this.data = data;
+        this.next = null;
+    }
+}
 public class PalindromeCheckerApp {
     public static void main(String[] args){
-        System.out.println("Welcome to Palindrome Checker App Management System");
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter a string to check: ");
+        String input = scanner.nextLine();
 
+        if (isPalindrome(input)) {
+            System.out.println("\"" + input + "\" is a palindrome.");
+        } else {
+            System.out.println("\"" + input + "\" is NOT a palindrome.");
+        }
+        scanner.close();
+    }
 
-        // Define the input string
-        String input = "refer";
+    public static boolean isPalindrome(String str) {
+        if (str == null || str.isEmpty()) return true;
 
-        // Create a Deque to store characters
-        Deque<Character> deque = new ArrayDeque<>();
+        // Clean string: remove non-alphanumeric and convert to lowercase
+        String cleanStr = str.replaceAll("[^a-zA-Z0-String]", "").toLowerCase();
+        if (cleanStr.length() <= 1) return true;
 
-        // Add each character to the deque
-        for (char c : input.toCharArray()) {
-            deque.addLast(c);
+        // Step 1: Convert string to Singly Linked List
+        Node head = convertToLinkedList(cleanStr);
+
+        // Step 2: Find the middle using Fast and Slow pointers
+        Node slow = head;
+        Node fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
         }
 
-        // Flag to track palindrome result
-        boolean isPalindrome = true;
+        // Step 3: Reverse the second half of the list
+        Node secondHalfHead = reverseList(slow);
+        Node firstHalfHead = head;
 
-        // Continue comparison while more than one element exists
-        while (deque.size() > 1) {
-
-            char first = deque.removeFirst();
-            char last = deque.removeLast();
-
-            if (first != last) {
-                isPalindrome = false;
+        // Step 4: Compare the two halves
+        Node tempSecond = secondHalfHead;
+        boolean result = true;
+        while (tempSecond != null) {
+            if (firstHalfHead.data != tempSecond.data) {
+                result = false;
                 break;
             }
+            firstHalfHead = firstHalfHead.next;
+            tempSecond = tempSecond.next;
         }
 
-        // Print result
-        if (isPalindrome) {
-            System.out.println(input + " is a Palindrome.");
-        } else {
-            System.out.println(input + " is NOT a Palindrome.");
+        // (Optional) Restore the list by reversing back if needed
+        return result;
+    }
+
+    private static Node convertToLinkedList(String s) {
+        Node dummy = new Node(' ');
+        Node current = dummy;
+        for (char c : s.toCharArray()) {
+            current.next = new Node(c);
+            current = current.next;
         }
+        return dummy.next;
+    }
+
+    private static Node reverseList(Node head) {
+        Node prev = null;
+        Node current = head;
+        while (current != null) {
+            Node nextNode = current.next;
+            current.next = prev;
+            prev = current;
+            current = nextNode;
+        }
+        return prev;
     }
 }
