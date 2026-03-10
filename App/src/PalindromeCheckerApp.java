@@ -1,48 +1,53 @@
 import java.util.Scanner;
+class PalindromeService {
 
+    /**
+     * Checks if a string is a palindrome.
+     * @param input The raw string from the user.
+     * @return true if palindrome, false otherwise.
+     */
+    public boolean checkPalindrome(String input) {
+        if (input == null || input.isEmpty()) {
+            return true;
+        }
+
+        // Normalize the string within the service
+        String cleanStr = input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+
+        int left = 0;
+        int right = cleanStr.length() - 1;
+
+        while (left < right) {
+            if (cleanStr.charAt(left) != cleanStr.charAt(right)) {
+                return false;
+            }
+            left++;
+            right--;
+        }
+        return true;
+    }
+}
 
 public class PalindromeCheckerApp {
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("--- Use Case 10: Case-Insensitive & Space-Ignored Checker ---");
-        System.out.print("Enter a string: ");
-        String input = scanner.nextLine();
+        // Instantiate the service object
+        PalindromeService service = new PalindromeService();
 
-        if (isNormalizedPalindrome(input)) {
-            System.out.println("Result: It is a palindrome (ignoring case and spaces)!");
+        System.out.println("--- UC11: Object-Oriented Palindrome Service ---");
+        System.out.print("Enter text to check: ");
+        String userInput = scanner.nextLine();
+
+        // Delegate the logic to the service object
+        boolean isPalindrome = service.checkPalindrome(userInput);
+
+        if (isPalindrome) {
+            System.out.println("Result: Success! It is a palindrome.");
         } else {
-            System.out.println("Result: It is NOT a palindrome.");
+            System.out.println("Result: Failure. Not a palindrome.");
         }
 
         scanner.close();
-    }
-
-    /**
-     * Normalizes the string and checks if it's a palindrome.
-     * @param str The raw input string.
-     * @return true if palindrome after normalization, false otherwise.
-     */
-    public static boolean isNormalizedPalindrome(String str) {
-        if (str == null) return false;
-
-        // Step 1: Normalization
-        // [^a-zA-Z0-9] matches anything NOT a letter or number
-        // .toLowerCase() ensures 'A' == 'a'
-        String normalized = str.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-
-        // Step 2: Palindrome Logic (Two-Pointer)
-        int left = 0;
-        int right = normalized.length() - 1;
-
-        while (left < right) {
-            if (normalized.charAt(left) != normalized.charAt(right)) {
-                return false; // Mismatch found
-            }
-            left++;
-            right--;
-        }
-
-        return true; // Entire string matched
     }
 }
